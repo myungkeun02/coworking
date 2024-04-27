@@ -4,8 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.myungkeun.coworking.domain.Member;
 import org.myungkeun.coworking.domain.Platform;
 import org.myungkeun.coworking.dto.request.MemberSignupRequest;
+import org.myungkeun.coworking.dto.response.IsDuplicateEmailResponse;
+import org.myungkeun.coworking.dto.response.IsDuplicateNicknameResponse;
 import org.myungkeun.coworking.dto.response.MemberSignupResponse;
 import org.myungkeun.coworking.exception.badRequest.DuplicateMemberException;
+import org.myungkeun.coworking.exception.badRequest.InvalidEmailException;
+import org.myungkeun.coworking.exception.badRequest.InvalidNicknameException;
 import org.myungkeun.coworking.exception.badRequest.InvalidPasswordException;
 import org.myungkeun.coworking.repository.MemberRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -59,4 +63,31 @@ public class MemberService {
             throw new InvalidPasswordException();
         }
     }
+
+    public IsDuplicateNicknameResponse isDuplicateNickname(String nickname) throws InvalidNicknameException {
+        validateNickname(nickname);
+        Boolean isPresent = memberRepository.existsByNickname(nickname);
+
+        return new IsDuplicateNicknameResponse(isPresent);
+    }
+
+    private void validateNickname(String nickname) throws InvalidNicknameException {
+        if(nickname.isBlank()) {
+            throw new InvalidNicknameException();
+        }
+    }
+
+    public IsDuplicateEmailResponse isDuplicateEmail(String email) throws InvalidEmailException {
+        validateEmail(email);
+        Boolean isPresent = memberRepository.existsByEmailAndPlatform(email, Platform.EMAIL);
+        return new IsDuplicateEmailResponse(isPresent);
+    }
+
+    private void validateEmail(String email) throws InvalidEmailException {
+        if(email.isBlank()) {
+            throw new InvalidEmailException();
+        }
+    }
+
+
 }
